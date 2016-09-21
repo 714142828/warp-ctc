@@ -145,14 +145,27 @@ ctcStatus_t reduce(Iof f, Rof g, const T* input, T* output, int rows, int cols, 
     return CTC_STATUS_SUCCESS;
 }
 
-ctcStatus_t reduce_negate(const float *input, float *output, int rows, int cols, bool axis, cudaStream_t stream) {
-    return reduce(ctc_helper::negate<float>(), ctc_helper::add<float>(), input, output, rows, cols, axis, stream);
+template<typename ProbT>
+ctcStatus_t reduce_negate(const ProbT *input, ProbT *output, int rows, int cols, bool axis, cudaStream_t stream) {
+    return reduce(ctc_helper::negate<ProbT>(), ctc_helper::add<ProbT>(), input, output, rows, cols, axis, stream);
 }
 
-ctcStatus_t reduce_exp(const float *input, float *output, int rows, int cols, bool axis, cudaStream_t stream) {
-    return reduce(ctc_helper::exponential<float>(), ctc_helper::add<float>(), input, output, rows, cols, axis, stream);
+template<typename ProbT>
+ctcStatus_t reduce_exp(const ProbT *input, ProbT *output, int rows, int cols, bool axis, cudaStream_t stream) {
+    return reduce(ctc_helper::exponential<ProbT>(), ctc_helper::add<ProbT>(), input, output, rows, cols, axis, stream);
 }
 
-ctcStatus_t reduce_max(const float *input, float *output, int rows, int cols, bool axis, cudaStream_t stream) {
-    return reduce(ctc_helper::identity<float>(), ctc_helper::maximum<float>(),input, output, rows, cols, axis, stream);
+template<typename ProbT>
+ctcStatus_t reduce_max(const ProbT *input, ProbT *output, int rows, int cols, bool axis, cudaStream_t stream) {
+    return reduce(ctc_helper::identity<ProbT>(), ctc_helper::maximum<ProbT>(),input, output, rows, cols, axis, stream);
 }
+
+// instantiate for float and double
+template ctcStatus_t reduce_negate(const float* input, float* output, int rows, int cols, bool axis, cudaStream_t stream);
+template ctcStatus_t reduce_exp(const float* input, float* output, int rows, int cols, bool axis, cudaStream_t stream);
+template ctcStatus_t reduce_max(const float* input, float* output, int rows, int cols, bool axis, cudaStream_t stream);
+
+template ctcStatus_t reduce_negate(const double* input, double* output, int rows, int cols, bool axis, cudaStream_t stream);
+template ctcStatus_t reduce_exp(const double* input, double* output, int rows, int cols, bool axis, cudaStream_t stream);
+template ctcStatus_t reduce_max(const double* input, double* output, int rows, int cols, bool axis, cudaStream_t stream);
+

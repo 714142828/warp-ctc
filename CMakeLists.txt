@@ -6,12 +6,16 @@ ENDIF()
 
 project(ctc_release)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FORCE_INLINES -D__STRICT_ANSI__ -D_MWAITXINTRIN_H_INCLUDED")
+
 IF (NOT APPLE)
+    #add_definitions(-DCTC_DISABLE_OMP)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -O2")
 ENDIF()
 
 IF (APPLE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
     add_definitions(-DAPPLE)
 ENDIF()
 
@@ -70,17 +74,17 @@ IF (WITH_GPU)
 
     MESSAGE(STATUS "Building shared library with GPU support")
 
-    CUDA_ADD_LIBRARY(warpctc SHARED src/ctc_entrypoint.cu src/reduce.cu)
+    CUDA_ADD_LIBRARY(warpctc SHARED src/ctcpp_entrypoint.cu src/ctc_entrypoint.cu src/reduce.cu)
     IF (!Torch_FOUND) 
         TARGET_LINK_LIBRARIES(warpctc ${CUDA_curand_LIBRARY})
     ENDIF()
 
-    add_executable(test_cpu tests/test_cpu.cpp )
-    TARGET_LINK_LIBRARIES(test_cpu warpctc)
-    SET_TARGET_PROPERTIES(test_cpu PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
+    #add_executable(test_cpu tests/test_cpu.cpp )
+    #TARGET_LINK_LIBRARIES(test_cpu warpctc)
+    #SET_TARGET_PROPERTIES(test_cpu PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
 
-    cuda_add_executable(test_gpu tests/test_gpu.cu)
-    TARGET_LINK_LIBRARIES(test_gpu warpctc ${CUDA_curand_LIBRARY})
+    #cuda_add_executable(test_gpu tests/test_gpu.cu)
+    #TARGET_LINK_LIBRARIES(test_gpu warpctc ${CUDA_curand_LIBRARY})
 
     INSTALL(TARGETS warpctc
             RUNTIME DESTINATION "bin"
@@ -88,6 +92,9 @@ IF (WITH_GPU)
             ARCHIVE DESTINATION "lib")
 
     INSTALL(FILES include/ctc.h DESTINATION "include")
+
+    INSTALL(FILES include/ctcpp.h include/ctc.h
+	    DESTINATION warp_ctc)
 
     IF (Torch_FOUND)
         MESSAGE(STATUS "Building Torch Bindings with GPU support")
@@ -120,7 +127,7 @@ ELSE()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2")
     ENDIF()
 
-    ADD_LIBRARY(warpctc SHARED src/ctc_entrypoint.cpp)
+    ADD_LIBRARY(warpctc SHARED src/ctcpp_entrypoint.cpp src/ctc_entrypoint.cpp)
 
     add_executable(test_cpu tests/test_cpu.cpp )
     TARGET_LINK_LIBRARIES(test_cpu warpctc)
@@ -132,6 +139,9 @@ ELSE()
             ARCHIVE DESTINATION "lib")
 
     INSTALL(FILES include/ctc.h DESTINATION "include")
+
+    INSTALL(FILES include/ctcpp.h include/ctc.h
+	    DESTINATION warp_ctc)
 
     IF (Torch_FOUND)
         MESSAGE(STATUS "Building Torch Bindings with no GPU support")

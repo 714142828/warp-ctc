@@ -418,7 +418,7 @@ void compute_betas_and_grad_kernel (const ProbT* probs, const int *label_sizes,
                 const int grads_offset = prob_offset + start_prob_col + keys_shared[idx];
 
                 ProbT grad = output[idx];
-
+                    
                 if ((grad == 0.0) || (probs[grads_offset] == 0.0) ||
                     (grad == ctc_helper::neg_inf<ProbT>())) {
                 } else {

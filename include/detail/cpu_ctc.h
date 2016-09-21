@@ -303,7 +303,7 @@ ProbT CpuCTC<ProbT>::compute_betas_and_grad(ProbT* grad, const ProbT* const prob
     for (int i = 0; i < alphabet_size_; ++i) {
         int idx3 = (T - 1) * alphabet_size_ * minibatch_ + i;
 
-        if (output[i] == 0.0 || output[i] == ctc_helper::neg_inf<ProbT>() ||
+        if (/*output[i] == 0.0 || */output[i] == ctc_helper::neg_inf<ProbT>() ||
             probs[idx3] == 0.0) {
             grad[idx3] = probs[idx3];
         } else {
@@ -353,7 +353,7 @@ ProbT CpuCTC<ProbT>::compute_betas_and_grad(ProbT* grad, const ProbT* const prob
         // wrt to each one at this time step
         for (int i = 0; i < alphabet_size_; ++i) {
 
-            if (output[i] == 0.0 || output[i] == ctc_helper::neg_inf<ProbT>() ||
+            if (/*output[i] == 0.0 || */output[i] == ctc_helper::neg_inf<ProbT>() ||
                 probs[idx3] == 0.0) {
                 grad[idx3] = probs[idx3];
             } else {
